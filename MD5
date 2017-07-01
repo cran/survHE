@@ -1,4 +1,4 @@
-1297af5d543d4612f983d3dee117e5c5 *DESCRIPTION
+6764673fb678132458fb6b3cdc1c3363 *DESCRIPTION
 19cc81864ff781109486e60c8b29afd9 *NAMESPACE
 18671bd4622de53d36dd3f859501b345 *R/digitise.R
 862133400bddaed9f3e85581c0e38840 *R/make.ipd.R
@@ -31,7 +31,7 @@ fc3a64f78ad2b3cba7ff470d96506fe7 *exec/WeibullAF.stan
 573ed9238f3f818f1d86256acdb37969 *exec/logNormal.stan
 d41d8cd98f00b204e9800998ecf8427e *inst/chunks/common_functions.stan
 d41d8cd98f00b204e9800998ecf8427e *inst/chunks/license.stan
-fc47979d2b04c74abe9c15518ae2faac *inst/doc/survHE.pdf
+614962670c08884e2284d3c8ebbfd3b9 *inst/doc/survHE.pdf
 7a09c76b59e0d84a1f9d5d697796b5aa *man/digitise.Rd
 bb82c0b6bbec51783458bf15a0595212 *man/fit.models.Rd
 4d57ac131e07df38e4e330e381378396 *man/internal_stan.Rd
