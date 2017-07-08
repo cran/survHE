@@ -1,6 +1,6 @@
-6764673fb678132458fb6b3cdc1c3363 *DESCRIPTION
-19cc81864ff781109486e60c8b29afd9 *NAMESPACE
-18671bd4622de53d36dd3f859501b345 *R/digitise.R
+ba438f7971ca80812bafa42a83b6cb42 *DESCRIPTION
+717c35b95422169e24938d3ae0708052 *NAMESPACE
+c81d4091fe6a7d970c9e004ff5095847 *R/digitise.R
 862133400bddaed9f3e85581c0e38840 *R/make.ipd.R
 b29025390ace62c285de7b360aefe0ac *R/make.surv.R
 2b1b31ddf626408095cf134e7913d3fd *R/make.transition.probs.R
@@ -31,7 +31,7 @@ fc3a64f78ad2b3cba7ff470d96506fe7 *exec/WeibullAF.stan
 573ed9238f3f818f1d86256acdb37969 *exec/logNormal.stan
 d41d8cd98f00b204e9800998ecf8427e *inst/chunks/common_functions.stan
 d41d8cd98f00b204e9800998ecf8427e *inst/chunks/license.stan
-614962670c08884e2284d3c8ebbfd3b9 *inst/doc/survHE.pdf
+299577971f0ce1d418f4e2f6d6c11acd *inst/doc/survHE.pdf
 7a09c76b59e0d84a1f9d5d697796b5aa *man/digitise.Rd
 bb82c0b6bbec51783458bf15a0595212 *man/fit.models.Rd
 4d57ac131e07df38e4e330e381378396 *man/internal_stan.Rd
@@ -49,6 +49,6 @@ f882fbf3c08c5b723af773415b569ab3 *man/test.linear.assumptions.Rd
 b7c3aadcbc674382b8ffe745d5c0bc06 *man/write.surv.Rd
 c0d6fe114b39ff8dbe26465c46b0a65c *src/Makevars
 803bd57c16a3ff02fbeaaffd14ed3933 *src/Modules.cpp
-b2affe0e4e4eca18f8b51fd096913279 *src/include/models.hpp
+0202d20801b2c64fd6e325d4e935f336 *src/include/models.hpp
 e89b29cb4b7626466406f2c29b5df563 *src/init.cpp
 d37ea05dbfb531147ca61fead2555276 *tools/make_cpp.R
