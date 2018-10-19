@@ -1,3 +1,45 @@
+#' Engine for Probabilistic Sensitivity Analysis on the survival curves
+#' 
+#' Creates the survival curves for the fitted model(s)
+#' 
+#' 
+#' @param fit the result of the call to the \code{fit.models} function,
+#' containing the model fitting (and other relevant information)
+#' @param mod the index of the model. Default value is 1, but the user can
+#' choose which model fit to visualise, if the call to fit.models has a vector
+#' argument for distr (so many models are fitted & stored in the same object)
+#' @param t the time vector to be used for the estimation of the survival curve
+#' @param newdata a list (of lists), specifiying the values of the covariates
+#' at which the computation is performed. For example
+#' \code{list(list(arm=0),list(arm=1))} will create two survival curves, one
+#' obtained by setting the covariate \code{arm} to the value 0 and the other by
+#' setting it to the value 1. In line with \code{flexsurv} notation, the user
+#' needs to either specify the value for *all* the covariates or for none (in
+#' which case, \code{newdata=NULL}, which is the default). If some value is
+#' specified and at least one of the covariates is continuous, then a single
+#' survival curve will be computed in correspondence of the average values of
+#' all the covariates (including the factors, which in this case are expanded
+#' into indicators).
+#' @param nsim The number of simulations from the distribution of the survival
+#' curves. Default at \code{nsim=1}, in which case uses the point estimate for
+#' the relevant distributional parameters and computes the resulting survival
+#' curve
+#' @param ...  Additional options
+#' @author Gianluca Baio
+#' @seealso Something will go here
+#' @references Something will go here
+#' @keywords Survival models Bootstrap Probabilistic sensitivity analysis
+#' @examples
+#' 
+#' # Loads an example dataset from 'flexsurv'
+#' data(bc)
+#' 
+#' # Fits the same model using the 3 inference methods
+#' mle = fit.models(formula=Surv(recyrs,censrec)~group,data=bc,
+#'     distr="exp",method="mle")
+#' p.mle = make.surv(mle)
+#' 
+#' @export make.surv
 make.surv <- function(fit,mod=1,t=NULL,newdata=NULL,nsim=1,...) {
   ## Creates the survival curves for the fitted model(s)
   # fit = the result of the call to the fit.models function, containing the model fitting (and other relevant information)
@@ -144,6 +186,48 @@ make.surv <- function(fit,mod=1,t=NULL,newdata=NULL,nsim=1,...) {
     }
   } 
   
+  # Re-defines inla.contrib.sd --- in case it's not in the main INLA package anymore
+  inla.contrib.sd = function(model, nsamples=1000) {
+    ## contributed by Gianluca Baio <gianluca@stats.ucl.ac.uk>
+
+    ## Computes the sd for the random effects in an INLA model
+    ## 1. Defines the precision (generates a matrix with bins and
+    ## density on the precision scale)
+
+    ## 2. Simulates replications from the posterior distributions of
+    ## the quantities of interest
+
+    ## Names of the variables associated with structured effects
+    rand.effs <- names(model$marginals.hyperpar)
+    for (i in 1:length(rand.effs)) {
+        cmd <- paste("prec.marg.",i,"<-model$marginals.hyperpar$'",rand.effs[i],"'",sep="")
+        eval(parse(text=cmd)) # marginal distribution of the precision, tau
+        ## Simulation from the posterior marginal distribution for sigma = 1/sqrt(tau)
+        cmd <- paste("sigma.", i,
+                     "<- inla.rmarginal(nsamples,inla.marginal.transform(function(x) 1/sqrt(x), prec.marg.",
+                     i,"))",sep="")
+        eval(parse(text=cmd))
+    }
+
+    ## Outputs of the function
+    mat <- matrix(NA, nsamples, length(rand.effs))
+    for (i in 1:length(rand.effs)) {
+        cmd <- paste("mat[,i] <- sigma.",i,sep="")
+        eval(parse(text=cmd)) 
+    }
+    names2 <- gsub("Precision","sd",rand.effs)
+    colnames(mat) <- names2
+
+    tab <- matrix(NA,length(rand.effs),4)
+    for (i in 1:length(rand.effs)) {
+        tab[i,] <- c(mean(mat[,i]),sd(mat[,i]),quantile(mat[,i],.025),quantile(mat[,i],.975))
+    }
+    rownames(tab) <- names2
+    colnames(tab) <- c("mean","sd","2.5%","97.5%")
+
+    return (list(samples=mat, hyper=tab))
+  }
+
   # If the original model(s) have been fitted using INLA, then use the (summaries of the) posterior distributions to compute the survival curves
   if(fit$method=="inla") {
     # A function to rescale the parameters of a given model and then computes the survival curve
@@ -171,7 +255,7 @@ make.surv <- function(fit,mod=1,t=NULL,newdata=NULL,nsim=1,...) {
       }
       if (m$dlist$name=="lognormal") {
         mulog <- linpred
-        sdlog <- INLA::inla.contrib.sd(m)$hyper[1,1]
+        sdlog <- inla.contrib.sd(m)$hyper[1,1]
         S <- lapply(1:length(mulog), function(x) cbind(t,dlnorm(t,mulog[x],sdlog)/hlnorm(t,mulog[x],sdlog))) 
       }
       return(S)
@@ -438,7 +522,7 @@ make.surv <- function(fit,mod=1,t=NULL,newdata=NULL,nsim=1,...) {
         linpred <- exp(coefs%*%t(X))
         S <- lapply(1:nsim,function(i) {
           lapply(1:ncol(linpred),function(j) {
-            cbind(t,1-pllogis(t,linpred[i,j],sigma[i]))  
+            cbind(t,1-pllogis(t,scale=linpred[i,j],shape=sigma[i]))  
           })
         }) 
         sim <- cbind(coefs,sigma)[1:nsim,]

@@ -1,3 +1,27 @@
+#' make.transition.probs
+#' 
+#' Computes the transition probabilities (to be passed to a Markov model) from
+#' the survival curves obtained using \code{fit.models} and \code{make.surv},
+#' using the formula p(t)=1-S(t+k)/S(t), where k is the Markov model cycle
+#' length and t is a generic time
+#' 
+#' Something will go here
+#' 
+#' @aliases make.transition.probs
+#' @param x an object obtained as output of the call to \code{make.surv}
+#' @param ...  additional arguments. Includes labs = a string vector of names
+#' for the elements of the list (strata for the survival analysis)
+#' @return Something will go here
+#' @note Something will go here
+#' @author Gianluca Baio
+#' @seealso Something will go here
+#' @references Something will go here
+#' @keywords Transition probabilities Markov models
+#' @examples
+#' 
+#' # Something will go here
+#' 
+#' @export make.transition.probs
 make.transition.probs <- function(x,...) {
   # Computes the transition probabilities (to feed a discrete-time Markov model), based on the output of make.surv
   # Uses the formula p(t)=1-S(t+k)/S(t) where k is the MM cycle length and t is a generic time
@@ -9,7 +33,7 @@ make.transition.probs <- function(x,...) {
   
   tp <- lapply(1:length(x$mat),function(i) {
     matrix(unlist(lapply(1:nrow(x$mat[[1]]),function(j) {
-      1-(x$mat[[i]][j,2:ncol(x$mat[[1]])]/x$mat[[i]][j,1:ncol(x$mat[[1]])-1])
+      1-(x$mat[[i]][j,2:ncol(x$mat[[1]])]/x$mat[[i]][j,1:(ncol(x$mat[[1]])-1)])
     })),byrow=T,nrow=nrow(x$mat[[1]]))
   })
   

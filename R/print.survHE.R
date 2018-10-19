@@ -1,3 +1,31 @@
+#' Print a summary of the survival model(s) fitted by \code{fit.models}
+#' 
+#' Prints the summary table for the model(s) fitted, with the estimate of the
+#' parameters
+#' 
+#' 
+#' @param x the \code{survHE} object (the output of the call to
+#' \code{fit.models})
+#' @param mod is the index of the model. Default value is 1, but the user can
+#' choose which model fit to visualise, if the call to fit.models has a vector
+#' argument for distr (so many models are fitted & stored in the same object)
+#' @param \dots additional options, including: \code{digits} = number of
+#' significant digits to be shown in the summary table (default = 6)
+#' \code{nsim} = number of simulations from the joint posterior for \code{INLA}
+#' (default = 100) \code{original} = a flag to say whether the *original* table
+#' from either \code{flexsurv} or \code{INLA} or \code{rstan} should be printed
+#' @author Gianluca Baio
+#' @references Something will go here
+#' @keywords Parametric survival models
+#' @examples
+#' 
+#' data(bc)
+#' 
+#' mle = fit.models(formula=Surv(recyrs,censrec)~group,data=bc,
+#'     distr="exp",method="mle")
+#' print(mle)
+#' 
+#' @export print.survHE
 print.survHE <- function(x,mod=1,...) {
   # Creates a print method for the objects in the class survHE
   # x is the survHE object (the output of the call to fit.models)
@@ -40,8 +68,16 @@ print.survHE <- function(x,mod=1,...) {
   if(!exists("digits",where=exArgs)){digits=6} else {digits=exArgs$digits}
   
   if(x$method =="mle") {
-    res <- x$models[[mod]]$res[,c(1,4,2,3)]
-    if (is.null(dim(res))) {names(res) <- c("mean","se","L95%","U95%")} else {colnames(res) <- c("mean","se","L95%","U95%")}
+    # Adding the option 'drop=FALSE' works for the Exponential model, which when no covariates are included 
+    # only has one value (eg the rate) and so the resulting table doesn't print the name 'rate'
+    res=x$models[[mod]]$res[,c(1,4,2,3),drop=FALSE]
+    # res <- x$models[[mod]]$res[,c(1,4,2,3)]
+    # if (is.null(dim(res))) {
+    #   names(res) <- c("mean","se","L95%","U95%")
+    # } else {
+    #   colnames(res) <- c("mean","se","L95%","U95%")
+    # }
+    colnames(res)=c("mean","se","L95%","U95%")
   }
   if(x$method=="inla" & original==FALSE) {
     # Rescales the parameters to make the estimates comparable with flexsurvreg
@@ -55,18 +91,18 @@ print.survHE <- function(x,mod=1,...) {
       pos <- pmatch(rownames(x$models[[mod]]$summary.fixed),rownames(jpost[[1]]$latent))
       
       if(x$models[[mod]]$dlist=="weibull") {
-	shape <- unlist(lapply(jpost,function(x) x$hyperpar))
-	names(shape) <- NULL
-	## NB: As of Jan 11 2017, there's a mistake in INLA and so needs to minus the argument of the exp here!
-	scale <- exp(-unlist(lapply(jpost,function(x) x$latent[pos[1],])))
-	effects <- matrix(NA,nrow=(length(pos)-1),ncol=nsim)
-	if(length(attributes(terms(x$misc$formula))$term.labels)>0) {
-	  for (j in 2:length(pos)) {
-	    effects[(j-1),] <- log(exp(-unlist(lapply(jpost,function(x) x$latent[pos[j],]))))
-	  }
-	  rownames(effects) <- x$models[[mod]]$names.fixed[-1]
-	}
-	tab <- rbind(shape,scale,effects)
+      	shape <- unlist(lapply(jpost,function(x) x$hyperpar))
+      	names(shape) <- NULL
+      	## NB: As of Jan 11 2017, there's a mistake in INLA and so needs to minus the argument of the exp here!
+      	scale <- exp(-unlist(lapply(jpost,function(x) x$latent[pos[1],])))
+      	effects <- matrix(NA,nrow=(length(pos)-1),ncol=nsim)
+      	if(length(attributes(terms(x$misc$formula))$term.labels)>0) {
+      	  for (j in 2:length(pos)) {
+      	    effects[(j-1),] <- log(exp(-unlist(lapply(jpost,function(x) x$latent[pos[j],]))))
+      	  }
+      	  rownames(effects) <- x$models[[mod]]$names.fixed[-1]
+      	}
+      	tab <- rbind(shape,scale,effects)
     }
     if(x$models[[mod]]$dlist=="weibullPH") {
 	shape <- unlist(lapply(jpost,function(x) x$hyperpar))
@@ -327,9 +363,11 @@ print.survHE <- function(x,mod=1,...) {
         to.rm=matrix(unlist(lapply(1:length(x$misc$formula),function(m) apply(x$misc$data.stan$X[m,,],2,function(x) all(x==0)))),
                      nrow=length(x$misc$formula),byrow=T)
         nmatch <- length(which(to.rm==T))
-        idx <- matrix(unlist(lapply(1:nmatch,function(i) {
-          paste0(which(to.rm==TRUE,arr.ind=T)[i,],collapse=",")
-        })))
+        if(nmatch>0){
+          idx <- matrix(unlist(lapply(1:nmatch,function(i) {
+            paste0(which(to.rm==TRUE,arr.ind=T)[i,],collapse=",")
+          })))  
+        } else {idx=NULL}
         if (!is.null(nrow(idx))) {
           take.out <- match(paste0("beta[",idx,"]"),rownames(table))
         }
