@@ -1,4 +1,4 @@
-fa502eb9d259ebd532dd0f935d19d808 *DESCRIPTION
+1a09e442b7a0cbd913194dcc66d0fc7c *DESCRIPTION
 fa426cacf61a655c2bf77f562fb1b07d *NAMESPACE
 db18358106487176f2a7125099c656c9 *R/digitise.R
 7776d8d90c4bfffdbd639456420a5f8a *R/make.ipd.R
@@ -16,6 +16,7 @@ cd5b7ef67eccc562b7e7552994264f37 *R/stanmodels.R
 122f5bc6f056119a954a4adc510d2f3d *R/test.linear.assumptions.R
 7939a22b47bcee275d27dbafc3a3f9ed *R/write.surv.R
 121caf2219270e113a4e558afc8b944f *R/zzz.R
+9f4f47760233943c819ef4d3110c9b4a *README.md
 7e4064b25bef662ce056279b8c860def *cleanup
 7e4064b25bef662ce056279b8c860def *cleanup.win
 be442e77d18fbcb0545dfc3580e2cf71 *inst/doc/survHE.pdf
@@ -33,12 +34,13 @@ d6618512765c5b6b415d624ff199d7cb *man/poly.weibull.Rd
 4a48967a80a9efba341fb66fae21062f *man/print.survHE.Rd
 eef45c4a9f8df26df5b5483d023465c8 *man/psa.plot.Rd
 fad807d74e72b8674743ea4e52d6b104 *man/summary.survHE.Rd
-e1a9d0b78798fd10cd09911fc6ff7bb5 *man/survHE-package.Rd
+7347bd6c60082b0482d0226b6d9ea792 *man/survHE-package.Rd
 126676161de0cf8cebcf1d706d5ee59d *man/test.linear.assumptions.Rd
 8e4a7cf0b4f573ba523dce85b53455f7 *man/write.surv.Rd
-eee0022bd55de759febe4642bff4aa33 *src/Makevars
-628bbeef6d0bef05b5343f5a438461ed *src/Makevars.win
+e385b69646bcc4555858feb68eb1f52e *src/Makevars
+243ea954dc0df3ff2890513ded735d9c *src/Makevars.win
 d41d8cd98f00b204e9800998ecf8427e *src/Modules.cpp
+247c5ceb6776e3786119b256caad9057 *src/include/models.hpp
 e89b29cb4b7626466406f2c29b5df563 *src/init.cpp
 58acbe62651959d63c1cfdffb794ef0a *src/stan_files/Exponential.stan
 0c93f38336bd65616255a993335ee228 *src/stan_files/Gamma.stan
@@ -49,7 +51,9 @@ b8f7c0def61c3650f1c68407ab9a68d0 *src/stan_files/PolyWeibull.stan
 661158cdc5baca14550123d315080489 *src/stan_files/RP.stan
 fc3a64f78ad2b3cba7ff470d96506fe7 *src/stan_files/WeibullAF.stan
 439eaa9601c7cf312e860428466c1d8f *src/stan_files/WeibullPH.stan
+d41d8cd98f00b204e9800998ecf8427e *src/stan_files/chunks/common_functions.stan
 1ee666e75eabe4d6c36df342fb3db061 *src/stan_files/chunks/license.stan
 787160d43e85b929290ebe2001723b61 *src/stan_files/logLogistic.stan
 573ed9238f3f818f1d86256acdb37969 *src/stan_files/logNormal.stan
 34e6b12ba370464b64c80d303f379d7d *tools/make_cc.R
+d37ea05dbfb531147ca61fead2555276 *tools/make_cpp.R
