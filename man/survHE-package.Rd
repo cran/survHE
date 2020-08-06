@@ -11,7 +11,7 @@ aiding in health economic modelling (extrapolation, model checking and PSA)
 }
 \details{
 \tabular{ll}{ Package: \tab survHE\cr Type: \tab Package\cr Version: \tab
-1.0.64\cr Date: \tab 2018-10-17\cr License: \tab GPL2 \cr LazyLoad: \tab
+1.1\cr Date: \tab 2020-08-07\cr License: \tab GPL2 \cr LazyLoad: \tab
 yes\cr } Contains a suite of functions to perform survival analysis with the
 aim of aiding in health economic modelling (extrapolation, model checking
 and PSA)
@@ -22,7 +22,8 @@ and PSA)
 
 }
 \references{
-Something will go here
+G Baio.(2020). survHE: Survival analysis for health economic evaluation and 
+cost-effectiveness modelling. Journal of Statistical Software. To appear 
 }
 \seealso{
 Something will go here
@@ -32,3 +33,6 @@ Gianluca Baio
 
 Maintainer: Gianluca Baio
 }
+\keyword{survival analysis}
+\keyword{health economics}
+

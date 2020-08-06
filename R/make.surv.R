@@ -240,7 +240,6 @@ make.surv <- function(fit,mod=1,t=NULL,newdata=NULL,nsim=1,...) {
       }
       if (m$dlist$name=="weibullPH") {
 	    shape <- m$summary.hyperpar[1,1]
-	    # NB: As of Jan 11 2017, there's a little mistake in INLA and so need to minus the linpred HERE
         scale <- exp(linpred)
         S <- lapply(1:length(scale), function(x) cbind(t,dweibullPH(t,shape,scale[x])/hweibullPH(t,shape,scale[x]))) 
       }
@@ -282,7 +281,6 @@ make.surv <- function(fit,mod=1,t=NULL,newdata=NULL,nsim=1,...) {
       linpred <- matrix(unlist(lapply(1:nsim,function(i) apply(sim1[i,]*t(X),2,sum))),nrow=nsim,byrow=T)
       if(m$dlist$name=="weibull") {
         shape <- sim[,1]
-	      # NB: As of Jan 11 2017, there's a little mistake in INLA and so need to minus the linpred HERE
         scale <- exp(-linpred)
         S <- lapply(1:nsim,function(i) {
           lapply(1:dim(scale)[2],function(j) {

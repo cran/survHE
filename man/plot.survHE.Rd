@@ -25,7 +25,8 @@ covariates. \code{xlim} = a vector determining the limits for the x-axis
 \code{colors} = a vector of characters defining the colours in which to plot
 the different survival curves \code{labs} = a vector of characters defining
 the names of the models fitted \code{add.km} = TRUE (whether to also add the
-Kaplan Meier estimates of the data)}
+Kaplan Meier estimates of the data) \code{legend} = TRUE (whether to also 
+add the legend to the graph)}
 }
 \description{
 Plots the results of model fit.

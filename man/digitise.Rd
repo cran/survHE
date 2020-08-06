@@ -4,8 +4,12 @@
 \alias{digitise}
 \title{Format digitised data for use in survival analysis}
 \usage{
-digitise(surv_inp, nrisk_inp, km_output = "KMdata.txt",
-  ipd_output = "IPDdata.txt")
+digitise(
+  surv_inp,
+  nrisk_inp,
+  km_output = "KMdata.txt",
+  ipd_output = "IPDdata.txt"
+)
 }
 \arguments{
 \item{surv_inp}{a txt file obtained for example by DigitizeIT and containing
