@@ -361,14 +361,14 @@ make_data_stan=function(formula,data,distr3,exArgs) {
   }
   
   # Ancillary parameters
-  if(!is.null(priors$a_sigma)) {a_sigma=priors$a_sigma}
-  if(!is.null(priors$b_sigma)) {b_sigma=priors$b_sigma}
-  if(!is.null(priors$mu_P)) {mu_P=priors$mu_P}
-  if(!is.null(priors$sigma_P)) {sigma_P=priors$sigma_P}
-  if(!is.null(priors$mu_Q)) {mu_Q=priors$mu_Q}
-  if(!is.null(priors$sigma_Q)) {sigma_Q=priors$sigma_Q}
-  if(!is.null(priors$a_alpha)) {a_alpha=priors$a_alpha}
-  if(!is.null(priors$b_alpha)) {b_alpha=priors$b_alpha}
+  if(!is.null(priors$a_sigma)) {data.stan$a_sigma=priors$a_sigma}
+  if(!is.null(priors$b_sigma)) {data.stan$b_sigma=priors$b_sigma}
+  if(!is.null(priors$mu_P)) {data.stan$mu_P=priors$mu_P}
+  if(!is.null(priors$sigma_P)) {data.stan$sigma_P=priors$sigma_P}
+  if(!is.null(priors$mu_Q)) {data.stan$mu_Q=priors$mu_Q}
+  if(!is.null(priors$sigma_Q)) {data.stan$sigma_Q=priors$sigma_Q}
+  if(!is.null(priors$a_alpha)) {data.stan$a_alpha=priors$a_alpha}
+  if(!is.null(priors$b_alpha)) {data.stan$b_alpha=priors$b_alpha}
   
   # Returns the list of data
   data.stan
@@ -738,7 +738,7 @@ compute_ICs_stan <- function(model,distr3,data.stan) {
     D.bar <- -2*loglik.bar
     data.stan$n <- data.stan$n_obs+data.stan$n_cens
   } else if(distr3=="pow") {
-    # If the model is Poly-Weibull, then computes these quantites directly
+    # If the model is Poly-Weibull, then computes these quantities directly
     h <- log_s <- array(NA,c(nrow(alpha),data.stan$n,data.stan$M))
     h_bar <- log_s_bar <- matrix(NA,data.stan$n,data.stan$M)
     for (m in 1:data.stan$M) {
@@ -888,10 +888,10 @@ lik_gga <- function(x,linpred,linpred.hat,model,data.stan) {
   q.bar = median(q)
   scale = as.numeric(rstan::extract(model)$sigma)
   scale.bar = median(scale)
-  lo <- exp(linpred$lo)
-  lc <- exp(linpred$lc)
-  lo.bar <- exp(linpred.hat$lo.bar)
-  lc.bar <- exp(linpred.hat$lc.bar)
+  lo <- (linpred$lo)
+  lc <- (linpred$lc)
+  lo.bar <- (linpred.hat$lo.bar)
+  lc.bar <- (linpred.hat$lc.bar)
   f = matrix(
     unlist(lapply(1:nrow(lo), function(i)
       dgengamma(data.stan$t, lo[i, ], scale[i], q[i]))), 
@@ -920,10 +920,10 @@ lik_gef <- function(x,linpred,linpred.hat,model,data.stan) {
   P.bar = median(P)
   sigma = as.numeric(rstan::extract(model)$sigma)
   sigma.bar = mean(sigma)
-  lo <- exp(linpred$lo)
-  lc <- exp(linpred$lc)
-  lo.bar <- exp(linpred.hat$lo.bar)
-  lc.bar <- exp(linpred.hat$lc.bar)
+  lo <- (linpred$lo)
+  lc <- (linpred$lc)
+  lo.bar <- (linpred.hat$lo.bar)
+  lc.bar <- (linpred.hat$lc.bar)
   f = matrix(
     unlist(lapply(1:nrow(lo), function(i) 
       dgenf(data.stan$t, lo[i, ], sigma[i], Q[i], P[i]))), 
