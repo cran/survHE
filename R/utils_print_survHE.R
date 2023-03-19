@@ -52,13 +52,17 @@ get_stats_hmc <- function(x,mod) {
   # Removes the node 'lp___'
   table=table[-grep("lp__",rownames(table)),]
   # If the model is intercept only, removes the unnecessary covariates created to suit 'stan' format
-  if("X_obs" %in% names(x$misc$data.stan[[1]])) {
-    if(any(apply(x$misc$data.stan[[1]]$X_obs,2,function(x) all(x==0)))) {
+  if("X_obs" %in% names(x$misc$data.stan[[mod]])) {
+    if(any(apply(x$misc$data.stan[[mod]]$X_obs,2,function(x) all(x==0)))) {
       table=table[-grep("beta\\[2\\]",rownames(table)),]
     }
   } else {
-    if(any(apply(x$misc$data.stan[[1]]$X,2,function(x) all(x==0)))) {
-      table=table[-grep("beta\\[2\\]",rownames(table)),]
+    if(any(apply(x$misc$data.stan[[mod]]$X,2,function(x) all(x==0)))) {
+      if(x$misc$model_name[mod]=="rps") {
+        table=table[-grep("beta",rownames(table)),]
+      } else {
+        table=table[-grep("beta\\[2\\]",rownames(table)),]
+      }
     }
   }
   # Now calls the helper functions to make the results table
@@ -191,8 +195,8 @@ rescale_stats_hmc_gam <- function(table,x) {
   rownames(rate) <- "rate"
   shape <- matrix(table[grep("alpha",rownames(table)),],ncol=4)
   rownames(shape) <- "shape"
-  effects=add_effects_hmc(table)
-  res <- rbind(shape,rate,effects,x)
+  effects=add_effects_hmc(table,x)
+  res <- rbind(shape,rate,effects)
   if (is.null(dim(res))) {names(res) <- c("mean","se","L95%","U95%")} else {colnames(res) <- c("mean","se","L95%","U95%")}
   return(res)
 }
@@ -351,7 +355,9 @@ rescale_stats_inla_wei <- function(x,mod,nsim=1000) {
   })
   shape=shape_sim %>% make_stats %>% matrix(.,ncol=4)
   ## NB: INLA has a weird parameterisation and with Weibull AFT, the coefficients have the wrong sign
-  scale=exp(-fixeff_sim[[1]]) %>% make_stats%>% matrix(.,ncol=4)
+  if(attributes(terms(x$misc$formula))$intercept==1) {
+    scale=exp(-fixeff_sim[[1]]+log(max(x$misc$km$time))) %>% make_stats%>% matrix(.,ncol=4)
+  }
   rownames(scale) <- "scale"
   rownames(shape) <- "shape"
   res=rbind(shape,scale)
@@ -387,7 +393,9 @@ rescale_stats_inla_wph <- function(x,mod,nsim=1000) {
     INLA::inla.rmarginal(nsim,x$models[[mod]]$marginals.fixed[[i]])
   })
   shape=shape_sim %>% make_stats %>% matrix(.,ncol=4)
-  scale=exp(fixeff_sim[[1]]) %>% make_stats%>% matrix(.,ncol=4)
+  if(attributes(terms(x$misc$formula))$intercept==1) {
+    scale=exp(fixeff_sim[[1]]+log(max(x$misc$km$time)))^(-shape_sim) %>% make_stats%>% matrix(.,ncol=4)
+  }
   rownames(scale) <- "scale"
   rownames(shape) <- "shape"
   res=rbind(shape,scale)
@@ -419,7 +427,9 @@ rescale_stats_inla_exp <- function(x,mod,nsim=1000) {
   fixeff_sim=lapply(1:nrow(x$models[[mod]]$summary.fixed),function(i) {
     INLA::inla.rmarginal(nsim,x$models[[mod]]$marginals.fixed[[i]])
   })
-  rate=exp(fixeff_sim[[1]]) %>% make_stats %>% matrix(.,ncol=4)
+  if(attributes(terms(x$misc$formula))$intercept==1) {
+    rate=exp(fixeff_sim[[1]]-log(max(x$misc$km$time))) %>% make_stats %>% matrix(.,ncol=4)
+  }
   rownames(rate)="rate"
   res=rate
   if(length(fixeff_sim)>1) {
@@ -450,7 +460,9 @@ rescale_stats_inla_lno <- function(x,mod,nsim=1000) {
   fixeff_sim=lapply(1:nrow(x$models[[mod]]$summary.fixed),function(i) {
     INLA::inla.rmarginal(nsim,x$models[[mod]]$marginals.fixed[[i]])
   })
-  meanlog=fixeff_sim[[1]] %>% make_stats %>% matrix(.,ncol=4)
+  if(attributes(terms(x$misc$formula))$intercept==1) {
+    meanlog=(fixeff_sim[[1]]+log(max(x$misc$km$time))) %>% make_stats %>% matrix(.,ncol=4)
+  }
   sdlog=sqrt(1/prec_sim) %>% make_stats %>% matrix(.,ncol=4)
   rownames(meanlog)="meanlog"
   rownames(sdlog)="sdlog"
@@ -485,13 +497,51 @@ rescale_stats_inla_llo <- function(x,mod,nsim=1000) {
     INLA::inla.rmarginal(nsim,x$models[[mod]]$marginals.fixed[[i]])
   })
   shape=shape_sim %>% make_stats %>% matrix(.,ncol=4)
-  scale=exp(-fixeff_sim[[1]]) %>% make_stats %>% matrix(.,ncol=4)
+  if(attributes(terms(x$misc$formula))$intercept==1) {
+    scale=exp(-fixeff_sim[[1]]+log(max(x$misc$km$time))) %>% make_stats %>% matrix(.,ncol=4)
+  }
   rownames(shape)="shape"
   rownames(scale)="scale"
   res=rbind(shape,scale)
   if(length(fixeff_sim)>1) {
     effects=lapply(2:nrow(x$models[[mod]]$summary.fixed),function(i) {
       -fixeff_sim[[i]]
+    })
+    effects=matrix(unlist(lapply(effects,function(i) i %>% make_stats)),
+                   nrow=length(fixeff_sim)-1,ncol=4,byrow=T)
+    rownames(effects) <- x$models[[mod]]$names.fixed[-1]
+    res=rbind(res,effects)
+  }
+  colnames(res)=c("mean","se","L95%","U95%")
+  return(res)
+}
+
+#' Helper function to rescale the stats for the Gompertz model
+#' 
+#' @param table The table with the relevant values for the model 
+#' parameters
+#' @return \item{res}{The resulting stats}
+#' @author Gianluca Baio
+#' @seealso print.survHE
+#' @references Baio (2020). survHE
+#' @keywords INLA Gompertz
+#' @noRd 
+rescale_stats_inla_gom <- function(x,mod,nsim=1000) {
+  shape_sim=INLA::inla.rmarginal(nsim,x$models[[mod]]$marginals.hyperpar[[1]])/max(x$misc$km$time)
+  fixeff_sim=lapply(1:nrow(x$models[[mod]]$summary.fixed),function(i) {
+    INLA::inla.rmarginal(nsim,x$models[[mod]]$marginals.fixed[[i]])
+  })
+  shape=shape_sim %>% make_stats %>% matrix(.,ncol=4)
+  # Need to rescale only if there is an intercept
+  if(attributes(terms(x$misc$formula))$intercept==1) {
+   rate=exp(fixeff_sim[[1]]-log(max(x$misc$km$time))) %>% make_stats %>% matrix(.,ncol=4)
+  }
+  rownames(shape)="shape"
+  rownames(rate)="rate"
+  res=rbind(shape,rate)
+  if(length(fixeff_sim)>1) {
+    effects=lapply(2:nrow(x$models[[mod]]$summary.fixed),function(i) {
+      fixeff_sim[[i]]
     })
     effects=matrix(unlist(lapply(effects,function(i) i %>% make_stats)),
                    nrow=length(fixeff_sim)-1,ncol=4,byrow=T)
@@ -582,6 +632,10 @@ original_table_mle <- function(x,mod,digits) {
 #' @noRd 
 original_table_inla <- function(x,mod,digits) {
   print(summary(x$models[[mod]]),digits=digits)
+  cat("\n")
+  cat("NB: notice that INLA models are fitted to data rescaled in [0-1] for computational stability.")
+  cat("\nThe estimates are rescaled on the original scale, applying a suitable back-transformation.") 
+  cat("\nThe numbers shown when 'original=TRUE' will be different than those shown in the 'survHE' format.")
 }
 
 #' Helper function to create the original summary table

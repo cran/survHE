@@ -103,12 +103,17 @@
 #' 
 #' @export fit.models
 fit.models <- function(formula = NULL, data , distr = NULL, method = "mle", ...) {
+  # Captures the call
+  call=match.call()
+  
   # Lists all the additional inputs
   exArgs <- list(...)
   # Adds the 'formula' to exArgs, so it can be used by 'runHMC' and 'runINLA'
   exArgs$formula <- formula
   # Adds the 'data' to exArgs so it can be used by 'runHMC', 'runMLE' and 'runINLA'
   exArgs$data=data
+  # Adds the 'call' to exArgs
+  exArgs$call=call
   
   # Avoids the 'no visible binding for global variable' error, when compiling
   #model <- NULL
@@ -126,8 +131,8 @@ fit.models <- function(formula = NULL, data , distr = NULL, method = "mle", ...)
   
   # Check whether the selected distribution(s) can be implemented with the selected method
   # (and if not, falls back to 'mle')
-  check_distributions(method,distr)
-  
+  method=check_distributions(method,distr)
+
   # MLE -----
   # If method = MLE, then fits the model(s) using flexsurvreg
   if (method=="mle") {
@@ -138,12 +143,30 @@ fit.models <- function(formula = NULL, data , distr = NULL, method = "mle", ...)
   # INLA -----
   # If method = INLA, then fits model(s) using inla
   if (method=="inla") {
-    res <- format_output_fit.models(lapply(distr,function(x) runINLA(x,exArgs)),method,distr,formula,data)
+    if (!isTRUE(requireNamespace("survHEinla", quietly = TRUE))) {
+      stop("You need to install the packages 'survHEinla'. Please run in your R terminal:\n remotes::install_github('giabaio/survHEinla')")
+    }
+    # If survHEinla is installed but not loaded then attach the Namespace (so that all the relevant functions are available)
+    if (isTRUE(requireNamespace("survHEinla", quietly = TRUE))) {
+      if (!is.element("survHEinla", (.packages()))) {
+        attachNamespace("survHEinla")
+      }
+      res <- format_output_fit.models(lapply(distr,function(x) survHEinla::runINLA(x,exArgs)),method,distr,formula,data)
+    }
   }
-    
+  
   # HMC -----
   if (method == "hmc") {
-    res <- format_output_fit.models(lapply(distr,function(x) runHMC(x,exArgs)),method,distr,formula,data)
+    if (!isTRUE(requireNamespace("survHEhmc", quietly = TRUE))) {
+      stop("You need to install the packages 'survHEhmc'. Please run in your R terminal:\n remotes::install_github('giabaio/survHEhmc')")
+    }
+    # If survHEhmc is installed but not loaded then attach the Namespace (so that all the relevant functions are available)
+    if (isTRUE(requireNamespace("survHEhmc", quietly = TRUE))) {
+      if (!is.element("survHEhmc", (.packages()))) {
+        attachNamespace("survHEhmc")
+      }
+      res <- format_output_fit.models(lapply(distr,function(x) survHEhmc::runHMC(x,exArgs)),method,distr,formula,data)
+    }
   }
 
   return(res)
