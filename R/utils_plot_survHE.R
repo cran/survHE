@@ -120,7 +120,7 @@ plot_ggplot_survHE <- function(exArgs) {
   # Makes the dataset to plot, including *only* the objects and models selected
   toplot <- lapply(sel_mods, function(i) {
     make_data_surv(survHE_objs[[i]],
-                   mods=all_models %>% filter(obj==names(survHE_objs)[i]) %>% pull(mod), 
+                   mods=all_models %>% dplyr::filter(obj==names(survHE_objs)[i]) %>% pull(mod), 
                    nsim=nsim,
                    t=t,
                    newdata=newdata,
@@ -147,8 +147,8 @@ plot_ggplot_survHE <- function(exArgs) {
     }) |> 
       bind_rows() |> 
       group_by(object_name,model_name) |> 
-      mutate(mods_id=cur_group_id()) |> 
-      ungroup()
+      mutate(mods_id=cur_group_id()) |>
+      ungroup() 
   } else {
     datakm <- NULL
   }
@@ -233,6 +233,74 @@ plot_ggplot_survHE <- function(exArgs) {
   
   surv.curv
 }
+
+#' Creates a 'newdata' list to modify the plots for specific individual
+#' profiles (with respect to the covariates)
+#' 
+#' @param data The original dataset that has been used as input to the call
+#' to 'fit.models'
+#' @param vars A vector of strings, including the names of the variables that
+#' are to be used to construct specific profiles of individual covariates
+#' @param conts A subset of 'vars', which include the named covariates that
+#' are continuous. These will be averaged over, while for the remaining 
+#' covariates (assumed to be factors), the specific profiles will be listed. 
+#' Defaults to NULL
+#' @return \item{newdata}{The list 'newdata' to be passed as optional argument
+#' to a call to the 'plot' method}
+#' @return \item{labs}{A vector of labels (say to use in the plot, for each 
+#' profile)}
+#' @note Something will go here
+#' @author Gianluca Baio
+#' @keywords Parametric survival models
+#' @examples
+#' \dontrun{
+#' data(bc)
+#' 
+#' # Fits a model using the 'bc' data
+#' mle = fit.models(formula=Surv(recyrs,censrec)~group,data=bc,
+#'     distr="exp",method="mle")
+#' # Now makes the default plot
+#' plot(mle)
+#' # Now creates a 'newdata' list to modify the plot for selected profiles
+#' newdata=make_newdata(data=bc,vars="group")
+#' # And can plot, say, only two of the three treatment arms
+#' plot(mle,newdata=newdata$newdata[c(1,3)],lab.profile=newdata$labs[c(1,3)])
+#' }
+#' 
+#' @export make_newdata
+
+make_newdata=function(data,vars,conts=NULL) {
+  df= 
+    # Takes the original data
+    data |> 
+    # Selects the relevant variables to construct the profiles
+    select(all_of(vars)) |> 
+    # Takes the mean for the continuous variables
+    mutate(across(all_of(conts),~mean(.x))) |> 
+    # Takes only the unique combinations
+    unique() 
+  
+  # Creates a vector of labels (say to use in the plot, for each profile)
+  labs=df |> 
+    # Don't need to keep the continuous variables as they've been averaged over
+    select(-conts) |> 
+    # Uses 'unite' to turn into vectors
+    tidyr::unite(labs,sep=", ") |> 
+    # NB: needs to remove names in the vector or else won't work in the plot(...)
+    unlist(use.names=F)
+  
+  # Creates the list 'newdata' to pass to the plot function
+  newdata = df |> 
+    # And then transforms into a list of values
+    (function(.) split(.,f=seq(nrow(.))))() 
+  
+  # Returns the output
+  list(
+    newdata=newdata,
+    labs=labs
+  )
+}
+
 
 
 #' Make the dataset to be used by \code{ggplot2} to plot the survival curves
@@ -346,7 +414,7 @@ make_surv_curve_plot <- function(toplot, datakm=NULL, mods, what="survival") {
   if (what=="hazard") {
     toplot <- toplot %>%
       group_by(model_name,strata) %>%
-      mutate(S = (-log(S)-lag(-log(S))) / (t-lag(t)) ) %>%
+      mutate(S = (-log(S)-dplyr::lag(-log(S))) / (time-dplyr::lag(time)) ) %>%
       ungroup()
     
     # If 'low' is a column of 'toplot' (=nsim>1) then also rescale the lower
@@ -354,8 +422,8 @@ make_surv_curve_plot <- function(toplot, datakm=NULL, mods, what="survival") {
     if ("low" %in% names(toplot)) {
       toplot <- toplot %>%
         group_by(model_name,strata) %>%
-        mutate(low = lag(-log(low))/lag(t),
-               upp = lag(-log(upp))/lag(t)) %>%
+        mutate(low = dplyr::lag(-log(low))/dplyr::lag(time),
+               upp = dplyr::lag(-log(upp))/dplyr::lag(time)) %>%
         ungroup()
     }
     ylab <- "Hazard"
@@ -428,10 +496,10 @@ make_surv_curve_plot <- function(toplot, datakm=NULL, mods, what="survival") {
   # Add KM plot? 
   if(!is.null(datakm)) {
     surv.curv <- surv.curv +
-      geom_step(data = datakm, aes(x = time, y = S, group=as.factor(strata)),
+      geom_step(data = datakm, aes(x = time, y = S, group=as.factor(strata:object_name)),
                 color="darkgrey") + 
       geom_ribbon(data = datakm,
-                  aes(x = time, y = S, ymin=lower, ymax=upper, group=as.factor(strata)),
+                  aes(x = time, y = S, ymin=lower, ymax=upper, group=as.factor(strata:object_name)),
                   alpha = 0.2) 
   }
   surv.curv

@@ -1,7 +1,7 @@
 Package: survHE
 Title: Survival Analysis in Health Economic Evaluation
-Version: 2.0.1
-Date: 2023-03-10
+Version: 2.0.2
+Date: 2024-10-03
 Authors@R: c(
     person(given = "Gianluca",family = "Baio",role = c("aut", "cre"),email = "g.baio@ucl.ac.uk"),
     person("Andrea","Berardi",role="ctb",email="and.be.like@gmail.com"),
@@ -27,16 +27,17 @@ Description: Contains a suite of functions for survival analysis in health econo
 License: GPL (>= 3)
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 Biarch: true
 Depends: methods, R (>= 3.6.0), flexsurv, dplyr, ggplot2
-Imports: rms, xlsx, tools, tibble
+Imports: rms, xlsx, tools, tibble, tidyr
 Suggests: survHEinla, survHEhmc, INLA, rstan, testthat (>= 3.0.0)
 Config/testthat/edition: 3
-Additional_repositories: https://inla.r-inla-download.org/R/stable/
+Additional_repositories: https://inla.r-inla-download.org/R/stable/,
+        https://giabaio.github.io/drat/
 SystemRequirements: GNU make
 NeedsCompilation: yes
-Packaged: 2023-03-17 23:33:59 UTC; gianluca
+Packaged: 2024-10-03 14:39:33 UTC; gianluca
 Author: Gianluca Baio [aut, cre],
   Andrea Berardi [ctb],
   Philip Cooney [ctb],
@@ -44,4 +45,4 @@ Author: Gianluca Baio [aut, cre],
   Nathan Green [ctb]
 Maintainer: Gianluca Baio <g.baio@ucl.ac.uk>
 Repository: CRAN
-Date/Publication: 2023-03-19 22:10:02 UTC
+Date/Publication: 2024-10-04 09:50:02 UTC
