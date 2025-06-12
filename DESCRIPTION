@@ -1,7 +1,7 @@
 Package: survHE
 Title: Survival Analysis in Health Economic Evaluation
-Version: 2.0.4
-Date: 2025-05-15
+Version: 2.0.5
+Date: 2025-06-12
 Authors@R: c(
     person(given = "Gianluca",family = "Baio",role = c("aut", "cre"),email = "g.baio@ucl.ac.uk"),
     person("Andrea","Berardi",role="ctb",email="and.be.like@gmail.com"),
@@ -39,7 +39,7 @@ Additional_repositories: https://inla.r-inla-download.org/R/stable/,
         https://giabaio.r-universe.dev/
 SystemRequirements: GNU make
 NeedsCompilation: no
-Packaged: 2025-05-15 07:57:33 UTC; gianluca
+Packaged: 2025-06-12 12:33:55 UTC; gianluca
 Author: Gianluca Baio [aut, cre],
   Andrea Berardi [ctb],
   Philip Cooney [ctb],
@@ -47,4 +47,4 @@ Author: Gianluca Baio [aut, cre],
   Nathan Green [ctb]
 Maintainer: Gianluca Baio <g.baio@ucl.ac.uk>
 Repository: CRAN
-Date/Publication: 2025-05-15 08:20:02 UTC
+Date/Publication: 2025-06-12 14:30:02 UTC

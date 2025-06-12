@@ -1,6 +1,6 @@
-094218a70bd847b70c7b8b44fe18ce40 *DESCRIPTION
-f2f69aae10705300b9fd159f265fdfa6 *NAMESPACE
-cf6966e63bac67194cecc8186f891a54 *NEWS.md
+5e45aaebac451d70d96b39fddf161f51 *DESCRIPTION
+bd3d76c16ab1dbcfef114a8508428fb4 *NAMESPACE
+5d018103bdd4c38e6369406f6a4343e9 *NEWS.md
 c5fd74a1bc75092809bfcf0485e3b409 *R/data.R
 02bccf2b3601fcd29901621d32b2d74f *R/digitise.R
 d0bb4b936e0431b7d616e452bd2f2082 *R/fit_models.R
@@ -17,7 +17,7 @@ c0203d3f46938bd830f4cb63d72f797b *R/summary.survHE.R
 df6cc46bc7fae1a55b713f3d5065b35a *R/survHE-package.R
 7f3f42558f4d2ff10713c7565b2302c7 *R/utils_fit_models.R
 ec77ff2e30f5516157adb0b767543f6b *R/utils_make_surv.R
-8eaf7dd42d4c0a84b012d71c23385e0f *R/utils_plot_survHE.R
+e7750d331cd839f69d150882a21a06ca *R/utils_plot_survHE.R
 a2cc5b34d66751e9047076a6ddb420ab *R/utils_print_survHE.R
 afd009cdc1d3515725b2a801b11eeeab *R/write.surv.R
 77c765b739819721e9db3e210f2bacdf *README.md
@@ -44,7 +44,8 @@ ee295e18a11df7e58ad082aeef3d46e7 *man/msmdata.Rd
 131ec289ba99a8c21065713ee629b8ec *man/summary.survHE.Rd
 c837f7a15d4b432d48411a24ec349e82 *man/survHE-package.Rd
 df1a1d8cd986aba91b4aac543d130d46 *man/ta174.Rd
+9018c0e8f57c12dea03d45c45ac08ebb *man/theme_survHE.Rd
 db0e38fdab6445c5221f34e92416f2cf *man/three_state_mm.Rd
 3b7220ebf06a5c1e81f1a106cc283852 *man/write.surv.Rd
 cb1556c9b93aa4640fa72abb5e466e4c *tests/testthat.R
-0f6411a5e71455808b7aca37a7953086 *tests/testthat/test-make.surv.R
+2a2a22637a9d70c4006e7eccb392a2d6 *tests/testthat/test-make.surv.R
