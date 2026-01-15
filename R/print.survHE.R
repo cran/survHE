@@ -10,9 +10,12 @@
 #' choose which model fit to visualise, if the call to fit.models has a vector
 #' argument for distr (so many models are fitted & stored in the same object)
 #' @param \dots additional options, including: \code{digits} = number of
-#' significant digits to be shown in the summary table (default = 6)
+#' significant digits to be shown in the summary table (default = 6);
 #' \code{original} = a flag to say whether the *original* table
-#' from either \code{flexsurv} or \code{INLA} or \code{rstan} should be printed
+#' from either \code{flexsurv} or \code{INLA} or \code{rstan} should be printed;
+#' \code{print_priors} = a flag to say whether the distributional assumptions 
+#' for the HMC model (only)
+#' 
 #' @author Gianluca Baio
 #' @template refs
 #' @keywords Parametric survival models
@@ -34,6 +37,7 @@ print.survHE <- function(x,mod=1,...) {
   # ... optional arguments
   # digits = number of *significant* digits to be shown in the summary table (default = 6)
   # original = a flag to say whether the *original* table from either INLA or MCMC should be printed
+  # print_priors = a flag to say whether the distributional assumptions for the HMC model (only)
   
   exArgs <- list(...)
 
@@ -45,13 +49,14 @@ print.survHE <- function(x,mod=1,...) {
   if(!exists("original",where=exArgs)){original=FALSE} else {original=exArgs$original}
   # Aliases for 'original'
   if(exists("orig",exArgs)){original=exArgs$orig}
+  if(!exists("print_priors",where=exArgs)){print_priors=FALSE} else {print_priors=exArgs$print_priors}
   
   # Now computes the stats, using different helpers depending on the underlying method
   # Can ask for the original output from either 'flexsurv', 'inla' or 'rstan'
   if(original==TRUE) {
     do.call(
       paste0("original_table_",x$method),
-      args=list(x,mod,digits)
+      args=list(x,mod,digits,print_priors)
     )
   } # If not, go with the default formatting using the standardised 'survHE' output
   else {
