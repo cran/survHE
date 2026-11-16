@@ -20,12 +20,19 @@ Useful links:
 \author{
 \strong{Maintainer}: Gianluca Baio \email{g.baio@ucl.ac.uk}
 
+Authors:
+\itemize{
+  \item Gianluca Baio \email{g.baio@ucl.ac.uk}
+}
+
 Other contributors:
 \itemize{
   \item Andrea Berardi \email{and.be.like@gmail.com} [contributor]
   \item Philip Cooney \email{philip.cooney@hotmail.com} [contributor]
   \item Andrew Jones \email{andrew.r.johnson@postgrad.curtin.edu.au} [contributor]
   \item Nathan Green \email{n.green@ucl.ac.uk} [contributor]
+  \item Paul Schneider [contributor]
+  \item Yansi Wu \email{yansi.s.wu@gmail.com} [contributor]
 }
 
 }

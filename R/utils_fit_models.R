@@ -2,7 +2,7 @@
 #' 
 #' @param x a string containing the name of the model
 #' to be fitted
-#' #' @param exArgs a list of extra arguments passed from the main 'fit.models' 
+#' @param exArgs a list of extra arguments passed from the main 'fit.models' 
 #' function
 #' @note Something will go here
 #' @author Gianluca Baio
@@ -36,39 +36,43 @@ runMLE <- function(x,exArgs) {
     if(exists("k",where=exArgs)) {k <- exArgs$k} else {k <- 0}
     if(exists("bknots",where=exArgs)) {bknots <- exArgs$bknots} else {bknots <- NULL}
     if(exists("scale",where=exArgs)) {scale <- exArgs$scale} else {scale <- "hazard"}
-    if(exists("timescale",where=exArgs)) {timescale <- exArgs$scale} else {timescale <- "log"}
-    model <- do.call(
-      flexsurv::flexsurvspline,
-      args=list(
-        formula=formula,
-        data=quote(data),
-        k=k,
-        knots=knots,
-        bknots=bknots,
-        scale=scale,
-        timescale=timescale,
-        weights=weights,
-        subset=subset
-      )
+    if(exists("timescale",where=exArgs)) {timescale <- exArgs$timescale} else {timescale <- "log"}
+    args <- list(
+      formula=formula,
+      data=quote(data),
+      k=k,
+      knots=knots,
+      bknots=bknots,
+      scale=scale,
+      timescale=timescale,
+      weights=weights,
+      subset=subset
     )
+    # Forwards user-specified initial values when provided (passed by flexsurvspline to flexsurvreg)
+    if(!is.null(exArgs$inits)) {args$inits <- exArgs$inits}
+    model <- do.call(flexsurv::flexsurvspline,args=args)
     ###model <- flexsurv::flexsurvspline(formula=formula,data=data,k=k,knots=knots,bknots=bknots,scale=scale,
     ###                                  timescale=timescale)
     if(!is.null(weights)) {model$call$weights=exArgs$call$weights} else {model$call$weights=NULL}
     if(!is.null(subset)) {model$call$subset=exArgs$call$subset} else {model$call$subset=NULL}
   } else {
     # If it's one of the other available models under MLE, then simply runs flexsurv::flexsurvreg
-    # But allows to use weight and subset
+    ## But allows to use weight and subset
     if(exists("weights",where=exArgs)) {weights <- exArgs$weights} else {weights=NULL}
     if(exists("subset",where=exArgs)) {subset <- exArgs$subset} else {subset <- NULL}
 
     ###model <- flexsurv::flexsurvreg(formula=formula,data=data,dist=x,weights=weights)
-    model <- do.call("flexsurvreg",args=list(
+    args <- list(
       formula=formula,
       data=quote(data),
       dist=x,
       weights=weights,
       subset=subset
-    ))
+    )
+    # Forwards user-specified initial values when provided
+    if(!is.null(exArgs$inits)) {args$inits <- exArgs$inits}
+    model <- do.call("flexsurvreg",args=args)
+
     # Fix the 'call' by using parts of the original call to fit.models
     if(!is.null(weights)) {model$call$weights=exArgs$call$weights} else {model$call$weights=NULL}
     if(!is.null(subset)) {model$call$subset=exArgs$call$subset} else {model$call$subset=NULL}
@@ -141,8 +145,7 @@ make_KM <- function(formula,data) {
 #' @author Gianluca Baio
 #' @seealso fit.models
 #' @references Baio (2020). survHE
-#' @keywords Parametric survival models Bayesian inference via Hamiltonian
-#' Monte Carlo Bayesian inference via Integrated Nested Laplace Approximation
+#' @keywords Parametric survival models Bayesian inference via Hamiltonian Monte Carlo Bayesian inference via Integrated Nested Laplace Approximation
 #' @noRd 
 format_output_fit.models <- function(output,method,distr,formula,data) {
   
@@ -199,8 +202,7 @@ format_output_fit.models <- function(output,method,distr,formula,data) {
 #' @author Gianluca Baio
 #' @seealso fit.models
 #' @references Baio (2020). survHE
-#' @keywords Parametric survival models Bayesian inference via Hamiltonian
-#' Monte Carlo Bayesian inference via Integrated Nested Laplace Approximation
+#' @keywords Parametric survival models Bayesian inference via Hamiltonian Monte Carlo Bayesian inference via Integrated Nested Laplace Approximation
 #' @noRd 
 load_availables <- function() {
   # INLA can only do a limited set of models (for now) so if user has selected
@@ -225,8 +227,9 @@ load_availables <- function() {
            "weibullPH" = "wph",
            "lognormal" = "lno",
            "loglogistic" = "llo",
-           "rps" = "rps",
-           "gompertz" = "gom"      # added Mar 19, 2021
+#           "rps" = "rps",          # INLA can't actually do RPS as a built-in model!
+           "gompertz" = "gom",      # added Mar 19, 2021
+           "gamma" = "gam"          # added Mar 16, 2026
     ),
     hmc=c("Exponential" = "exp",
           "Gamma" = "gam",
@@ -258,8 +261,7 @@ load_availables <- function() {
 #' @author Gianluca Baio
 #' @seealso fit.models
 #' @references Baio (2020). survHE
-#' @keywords Parametric survival models Bayesian inference via Hamiltonian
-#' Monte Carlo Bayesian inference via Integrated Nested Laplace Approximation
+#' @keywords Parametric survival models Bayesian inference via Hamiltonian Monte Carlo Bayesian inference via Integrated Nested Laplace Approximation
 #' @noRd 
 manipulate_distributions <- function(x){
   # selected model checks -----
